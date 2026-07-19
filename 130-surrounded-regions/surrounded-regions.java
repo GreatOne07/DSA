@@ -1,66 +1,52 @@
-import java.util.*;
-
 class Solution {
-
-    private void dfs(int r, int c, int[][] vis, char[][] board, int[] dr, int[] dc) {
-
-        vis[r][c] = 1;
-
-        int n = board.length;
-        int m = board[0].length;
-
-        for (int k = 0; k < 4; k++) {
-
-            int nr = r + dr[k];
-            int nc = c + dc[k];
-
-            if (nr >= 0 && nr < n &&
-                nc >= 0 && nc < m &&
-                vis[nr][nc] == 0 &&
-                board[nr][nc] == 'O') {
-
-                dfs(nr, nc, vis, board, dr, dc);
+    public void dfs(int row,int col,int vis[][],char[][]board,int delrow[],int delcol[]){
+        vis[row][col]=1;
+        int n=board.length;
+        int m=board[0].length;
+        for(int i=0;i<4;i++){
+            int nrow=row+delrow[i];
+            int ncol=col+delcol[i];
+            if(nrow>=0 && nrow<n && ncol>=0 && ncol<m && vis[nrow][ncol]==0 && board[nrow][ncol]=='O'){
+                dfs(nrow,ncol,vis,board,delrow,delcol);
             }
         }
     }
-
     public void solve(char[][] board) {
-
-        int n = board.length;
-        int m = board[0].length;
-
-        int[][] vis = new int[n][m];
-
-        int[] dr = {-1, 0, 1, 0};
-        int[] dc = {0, 1, 0, -1};
-
-        // First row and last row
-        for (int j = 0; j < m; j++) {
-
-            if (board[0][j] == 'O' && vis[0][j] == 0)
-                dfs(0, j, vis, board, dr, dc);
-
-            if (board[n - 1][j] == 'O' && vis[n - 1][j] == 0)
-                dfs(n - 1, j, vis, board, dr, dc);
+        int n=board.length;
+        int m=board[0].length;
+        int delrow[]={-1,0,1,0};
+        int delcol[]={0,1,0,-1};
+        int vis[][] =new int [n][m];
+        //traverse by first and last row
+        for(int j=0;j<m;j++){
+            //first row
+            if(vis[0][j]==0 && board[0][j]=='O'){
+                dfs(0,j,vis,board,delrow,delcol);
+            }
+            //last row
+            if(vis[n-1][j]==0 && board[n-1][j]=='O'){
+                dfs(n-1,j,vis,board,delrow,delcol);
+            }
         }
-
-        // First column and last column
-        for (int i = 0; i < n; i++) {
-
-            if (board[i][0] == 'O' && vis[i][0] == 0)
-                dfs(i, 0, vis, board, dr, dc);
-
-            if (board[i][m - 1] == 'O' && vis[i][m - 1] == 0)
-                dfs(i, m - 1, vis, board, dr, dc);
+        //traverse by first and last col
+        for(int i=0;i<n;i++){
+            //first row
+            if(vis[i][0]==0 && board[i][0]=='O'){
+                dfs(i,0,vis,board,delrow,delcol);
+            }
+            //last row
+            if(vis[i][m-1]==0 && board[i][m-1]=='O'){
+                dfs(i,m-1,vis,board,delrow,delcol);
+            }
         }
-
-        // Flip enclosed O's
+         // Convert enclosed O's to X
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (board[i][j] == 'O' && vis[i][j] == 0) {
+                if (vis[i][j] == 0 && board[i][j] == 'O') {
                     board[i][j] = 'X';
                 }
             }
         }
+        return;
     }
 }
