@@ -1,56 +1,48 @@
 class Solution {
     public List<Integer> eventualSafeNodes(int[][] graph) {
-        int n = graph.length;
-        int[] vis = new int[n];
-        int[] pathVis = new int[n];
-        int[] check = new int[n];
-        for(int i=0;i<n;i++){
-            if(vis[i]==0){
-                dfsCheck(i,graph,vis,pathVis,check);
-            }}
-            List<Integer> ans = new ArrayList<>();
-             for (int i = 0; i < n; i++) {
-            if (check[i] == 1) {
-                ans.add(i);
+        int v = graph.length;
+        ArrayList<ArrayList<Integer>> revAdj= new ArrayList<>();
+        for(int i=0;i<v;i++){
+            revAdj.add(new ArrayList<>());
+        }
+        int[] outdegree= new int[v];
+        for(int i=0;i<v;i++){
+            outdegree[i]=graph[i].length;
+            for(int neighbour : graph[i]){
+                revAdj.get(neighbour).add(i);
             }
         }
+        Queue<Integer> q=new LinkedList<>();
+        for (int i = 0; i < v; i++) {
 
-        return ans;
-    }
-     public boolean dfsCheck(int node,
-                            int[][] graph,
-                            int[] vis,
-                            int[] pathVis,
-                            int[] check) {
+            if (outdegree[i] == 0) {
 
-        vis[node] = 1;
-        pathVis[node] = 1;
-        check[node] = 0;      // Assume unsafe initially
+                q.offer(i);
+            }}
+             List<Integer> safeNodes = new ArrayList<>();
 
-        for (int it : graph[node]) {
+        while (!q.isEmpty()) {
 
-            // If neighbour is not visited
-            if (vis[it] == 0) {
+            int node = q.poll();
 
-                if (dfsCheck(it, graph, vis, pathVis, check)) {
-                    check[node] = 0;
-                    return true;
+            safeNodes.add(node);
+
+            for (int neighbour : revAdj.get(node)) {
+
+                outdegree[neighbour]--;
+
+                if (outdegree[neighbour] == 0) {
+
+                    q.offer(neighbour);
                 }
             }
-
-            // If neighbour is in current DFS path
-            else if (pathVis[it] == 1) {
-
-                check[node] = 0;
-                return true;
-            }
         }
 
-        // No cycle found
-        check[node] = 1;      // Mark as safe
-        pathVis[node] = 0;    // Remove from current path
+        Collections.sort(safeNodes);
 
-        return false;
-    }
+        return safeNodes;
         
+
     }
+
+}
