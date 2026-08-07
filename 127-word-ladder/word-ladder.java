@@ -1,5 +1,3 @@
-import java.util.*;
-
 class Pair {
     String word;
     int steps;
@@ -13,16 +11,15 @@ class Pair {
 class Solution {
     public int ladderLength(String beginWord, String endWord, List<String> wordList) {
 
-        HashSet<String> st = new HashSet<>();
+        HashSet<String> set = new HashSet<>(wordList);
 
-        for (String word : wordList) {
-            st.add(word);
-        }
+        if (!set.contains(endWord))
+            return 0;
 
         Queue<Pair> q = new LinkedList<>();
         q.offer(new Pair(beginWord, 1));
 
-        st.remove(beginWord);
+        set.remove(beginWord);
 
         while (!q.isEmpty()) {
 
@@ -44,9 +41,9 @@ class Solution {
                     arr[i] = ch;
                     String newWord = new String(arr);
 
-                    if (st.contains(newWord)) {
+                    if (set.contains(newWord)) {
                         q.offer(new Pair(newWord, steps + 1));
-                        st.remove(newWord);
+                        set.remove(newWord);
                     }
                 }
 
