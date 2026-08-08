@@ -1,62 +1,130 @@
 class Solution {
-    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
-        List<List<String>> result = new ArrayList<>();
-        Set<String> dict = new HashSet<>(wordList);
-        if (!dict.contains(endWord)) return result;
 
-        Map<String, List<String>> parents = new HashMap<>();
-        Set<String> currentLevel = new HashSet<>();
-        currentLevel.add(beginWord);
-        dict.remove(beginWord);
+    List<List<String>> ans = new ArrayList<>();
+    List<String> path = new ArrayList<>();
+
+    Map<String, List<String>> parent = new HashMap<>();
+
+    public List<List<String>> findLadders(
+            String beginWord,
+            String endWord,
+            List<String> wordList) {
+
+        Set<String> set = new HashSet<>(wordList);
+
+        if (!set.contains(endWord)) {
+            return ans;
+        }
+
+        // BFS
+        Queue<String> q = new LinkedList<>();
+        q.offer(beginWord);
+
+        Set<String> visited = new HashSet<>();
+        visited.add(beginWord);
+
         boolean found = false;
 
-        while (!currentLevel.isEmpty() && !found) {
-            Set<String> nextLevel = new HashSet<>();
-            Set<String> visitedThisLevel = new HashSet<>();
+        while (!q.isEmpty() && !found) {
 
-            for (String word : currentLevel) {
-                char[] chars = word.toCharArray();
-                for (int i = 0; i < chars.length; i++) {
-                    char original = chars[i];
-                    for (char c = 'a'; c <= 'z'; c++) {
-                        if (c == original) continue;
-                        chars[i] = c;
-                        String next = new String(chars);
-                        if (dict.contains(next)) {
-                            if (next.equals(endWord)) found = true;
-                            nextLevel.add(next);
-                            visitedThisLevel.add(next);
-                            parents.computeIfAbsent(next, k -> new ArrayList<>()).add(word);
+            int size = q.size();
+
+            Set<String> usedThisLevel = new HashSet<>();
+
+            for (int k = 0; k < size; k++) {
+
+                String word = q.poll();
+
+                char[] arr = word.toCharArray();
+
+                for (int i = 0; i < arr.length; i++) {
+
+                    char original = arr[i];
+
+                    for (char ch = 'a'; ch <= 'z'; ch++) {
+
+                        arr[i] = ch;
+
+                        String newWord = new String(arr);
+
+                        if (!set.contains(newWord)) {
+                            continue;
+                        }
+
+                        // First time seeing this word
+                        if (!visited.contains(newWord)) {
+
+                            visited.add(newWord);
+                            usedThisLevel.add(newWord);
+
+                            q.offer(newWord);
+
+                            parent.putIfAbsent(
+                                newWord,
+                                new ArrayList<>()
+                            );
+
+                            parent.get(newWord).add(word);
+
+                        }
+
+                        // Another shortest parent
+                        else if (usedThisLevel.contains(newWord)) {
+
+                            parent.get(newWord).add(word);
+                        }
+
+                        if (newWord.equals(endWord)) {
+                            found = true;
                         }
                     }
-                    chars[i] = original;
+
+                    arr[i] = original;
                 }
             }
 
-            dict.removeAll(visitedThisLevel);
-            currentLevel = nextLevel;
+            // Remove words only after completing level
+            for (String word : usedThisLevel) {
+                set.remove(word);
+            }
         }
 
-        if (found) {
-            LinkedList<String> path = new LinkedList<>();
-            path.add(endWord);
-            backtrack(endWord, beginWord, parents, path, result);
+        if (!visited.contains(endWord)) {
+            return ans;
         }
 
-        return result;
+        // DFS from endWord back to beginWord
+        path.add(endWord);
+
+        dfs(endWord, beginWord);
+
+        return ans;
     }
 
-    private void backtrack(String word, String beginWord, Map<String, List<String>> parents,
-                            LinkedList<String> path, List<List<String>> result) {
+    private void dfs(String word, String beginWord) {
+
         if (word.equals(beginWord)) {
-            result.add(new ArrayList<>(path));
+
+            List<String> temp = new ArrayList<>(path);
+
+            Collections.reverse(temp);
+
+            ans.add(temp);
+
             return;
         }
-        if (!parents.containsKey(word)) return;
-        for (String parent : parents.get(word)) {
-            path.addFirst(parent);
-            backtrack(parent, beginWord, parents, path, result);
-            path.removeFirst();
+
+        if (!parent.containsKey(word)) {
+            return;
+        }
+
+        for (String p : parent.get(word)) {
+
+            path.add(p);
+
+            dfs(p, beginWord);
+
+            path.remove(path.size() - 1);
         }
     }
 }
