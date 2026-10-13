@@ -1,5 +1,3 @@
-import java.util.*;
-
 class Solution {
     public long maxAlternatingSum(int[] nums) {
         for (int i = 0; i < nums.length; i++) {
